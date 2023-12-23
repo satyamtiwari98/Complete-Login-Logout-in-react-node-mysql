@@ -1,12 +1,15 @@
 import express from "express";
 import mysql from "mysql";
-import cors from "cors";
+import cors from "cors"; // CORS is a mechanism that allows certain types of requests, from another domain, protocol, or port, to work that would otherwise be restricted by the SOP.
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 
 const app = express();
+
 app.use(express.json());
+
 app.use(cookieParser());
+
 app.use(
   cors({
     origin: ["http://localhost:5173"],
