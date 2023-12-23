@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 app.use(
   cors({
     origin: ["http://localhost:5173"],
@@ -19,6 +20,26 @@ const db = mysql.createConnection({
   user: "root",
   password: "",
   database: "signup",
+});
+
+const verifyUser = (req, res, next) => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res.json({ message: "we need token please provide it. Login now" });
+  } else {
+    jwt.verify(token, "our-jsonwebtoken-secret-key", (err, decoded) => {
+      if (err) {
+        return res.json({ message: "Authentication Error." });
+      } else {
+        req.name = decoded.name;
+        next();
+      }
+    });
+  }
+};
+
+app.get("/", verifyUser, (req, res) => {
+  return res.json({ status: "200OK", name: req.name });
 });
 
 app.post("/login", (req, res) => {
@@ -36,6 +57,11 @@ app.post("/login", (req, res) => {
       return res.json({ message: "User Doesnot exist" });
     }
   });
+});
+
+app.get("/logout", (req, res) => {
+  res.clearCookie("token");
+  return res.json({ status: "200OK" });
 });
 
 app.listen(9000, () => {
